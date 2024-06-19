@@ -3,6 +3,7 @@ from landlab.components import OverlandFlow
 from landlab.components import SoilInfiltrationGreenAmpt
 from landlab.io import read_esri_ascii
 
+# First, read the topo data
 grid_path = './Inputs/LuckyHills103_1m.asc'
 outlet_node = int(14504)
 
@@ -18,7 +19,7 @@ soil[:] = 1
 bedrock[:] = topo-soil
 
 
-# Infiltration component
+# Infiltration component init
 hydraulic_conductivity_sediment = 5.5*10**-6
 infilitration_depth = grid.add_ones("soil_water_infiltration__depth", at="node", dtype=float)
 grid.add_zeros('surface_water__depth',
@@ -35,25 +36,25 @@ SI = SoilInfiltrationGreenAmpt(grid, hydraulic_conductivity=Ks,
                                      volume_fraction_coarse_fragments=volume_fraction_coarse_fragments,
                                      )
 
-## Overland flow component
-
+## Overland flow component init
 roughness = 0.07
 ld = OverlandFlow(grid, mannings_n = roughness,
                   steep_slopes=True)
 
-# Rainfall data
+# Read rainfall data
 rainfall_data = np.load('./Inputs/rainfall_data.npz')
-rainfall_duration = rainfall_data['durations']
-rainfall_rate = rainfall_data['rates']
-
+rainfall_duration = rainfall_data['durations']  # Secounds
+rainfall_rate = rainfall_data['rates']          # Rainfall intensity [m/s]
 
 int_index = 0
 current_rainfall_duration = rainfall_duration[int_index]
 ld.rainfall_intensity = rainfall_rate[int_index]
 epsilon = 10**-10
 
-elapse_dts = 0
-min_dt = 30     # maximal dt for ensure stability
+
+# Main loop
+elapse_dts = 0  # counter of simulation time [sec]
+min_dt = 30     # maximal dt [sec] to ensure stability
 while elapse_dts < rainfall_duration[-1]:
     if elapse_dts >= current_rainfall_duration:  # sec
 
@@ -70,7 +71,7 @@ while elapse_dts < rainfall_duration[-1]:
     print(elapse_dts)
 
 # Let the watershed run-out of water
-ld.rainfall_intensity = epsilon
+ld.rainfall_intensity = epsilon # very small number
 while np.max(grid.at_node['surface_water__depth']) >= 0.0001:
 
     ld.calc_time_step()
