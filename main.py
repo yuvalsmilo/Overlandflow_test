@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import sys
 from landlab.components import OverlandFlow
 from landlab.components import SoilInfiltrationGreenAmpt
 from landlab.io import read_esri_ascii
