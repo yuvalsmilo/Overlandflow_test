@@ -43,14 +43,14 @@ ld = OverlandFlow(grid, mannings_n = roughness,
 
 # Read rainfall data
 rainfall_data = np.load('./Inputs/rainfall_data.npz')
-rainfall_duration = rainfall_data['durations']  # Secounds
+rainfall_duration = rainfall_data['durations']  # Seconds
 rainfall_rate = rainfall_data['rates']          # Rainfall intensity [m/s]
 
-int_index = 0
+int_index = 0   # First rainfall intensity interval
 current_rainfall_duration = rainfall_duration[int_index]
 ld.rainfall_intensity = rainfall_rate[int_index]
 epsilon = 10**-10
-
+threshold_of_pits = 5 # m^3
 
 # Main loop
 elapse_dts = 0  # counter of simulation time [sec]
@@ -72,13 +72,13 @@ while elapse_dts < rainfall_duration[-1]:
 
 # Let the watershed run-out of water
 ld.rainfall_intensity = epsilon # very small number
-while np.max(grid.at_node['surface_water__depth']) >= 0.0001:
+while np.sum(grid.at_node['surface_water__depth']) >= threshold_of_pits: # continue until reaching threshold of topographic 'pits' water storage
 
     ld.calc_time_step()
     dt = ld._dt
     ld.run_one_step(dt=dt)
     SI.run_one_step(dt=dt)
     elapse_dts += dt
-    print(elapse_dts)
+    print(np.sum(grid.at_node['surface_water__depth']))
 
 
