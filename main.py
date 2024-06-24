@@ -86,7 +86,7 @@ while elapse_dts < rainfall_duration[-1]:
     print(elapse_dts)
 
 # Let the watershed run-out of water
-# ld.rainfall_intensity = epsilon # very small number
+ld.rainfall_intensity = epsilon # very small number
 while elapse_dts < rainfall_duration[-1] * 2: # continue until reaching threshold of topographic 'pits' water storage
 
     ld.calc_time_step()
