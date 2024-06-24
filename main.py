@@ -66,6 +66,8 @@ threshold_of_pits = 1 # m^3
 elapse_dts = 0  # counter of simulation time [sec]
 min_dt = 30     # maximal dt [sec] to ensure stability
 wh_at_node = []
+elapsed_dt_vec = []
+
 while elapse_dts < rainfall_duration[-1]:
     if elapse_dts >= current_rainfall_duration:  # sec
 
@@ -74,6 +76,8 @@ while elapse_dts < rainfall_duration[-1]:
         current_rainfall_duration = rainfall_duration[int_index]
         ld.rainfall_intensity = current_rainfall_rate  # meter per sec -> For the OverlandFlow component
     wh_at_node.append(grid.at_node['surface_water__depth'][outlet_node+1])
+    elapsed_dt_vec.append(elapse_dts)
+
     ld.calc_time_step()
     dt = np.min((ld._dt,min_dt))
     ld.run_one_step(dt=dt)
@@ -82,8 +86,8 @@ while elapse_dts < rainfall_duration[-1]:
     print(elapse_dts)
 
 # Let the watershed run-out of water
-ld.rainfall_intensity = epsilon # very small number
-while np.sum(grid.at_node['surface_water__depth']) >= threshold_of_pits: # continue until reaching threshold of topographic 'pits' water storage
+# ld.rainfall_intensity = epsilon # very small number
+while elapse_dts < rainfall_duration[-1] * 2: # continue until reaching threshold of topographic 'pits' water storage
 
     ld.calc_time_step()
     dt = ld._dt
@@ -92,6 +96,7 @@ while np.sum(grid.at_node['surface_water__depth']) >= threshold_of_pits: # conti
     elapse_dts += dt
     print(np.sum(grid.at_node['surface_water__depth']))
     wh_at_node.append(grid.at_node['surface_water__depth'][outlet_node+1])
+    elapsed_dt_vec.append(elapse_dts)
 
 
-plt.plot(wh_at_node),plt.show()
+plt.plot(elapsed_dt_vec,wh_at_node),plt.show()
