@@ -3,6 +3,7 @@ from landlab.components import OverlandFlow
 from landlab.components import SoilInfiltrationGreenAmpt
 from landlab.io import read_esri_ascii
 import matplotlib.pyplot as plt
+import time
 # First, read the topo data
 grid_path = './Inputs/LuckyHills103_1m.asc'
 outlet_node = int(14504)
@@ -67,7 +68,7 @@ elapse_dts = 0  # counter of simulation time [sec]
 min_dt = 30     # maximal dt [sec] to ensure stability
 wh_at_node = []
 elapsed_dt_vec = []
-
+t1 = time.time()
 while elapse_dts < rainfall_duration[-1]:
     if elapse_dts >= current_rainfall_duration:  # sec
 
@@ -97,6 +98,6 @@ while elapse_dts < rainfall_duration[-1] * 2: # continue until reaching threshol
     print(np.sum(grid.at_node['surface_water__depth']))
     wh_at_node.append(grid.at_node['surface_water__depth'][outlet_node+1])
     elapsed_dt_vec.append(elapse_dts)
-
+print(time.time()-t1)
 
 plt.plot(elapsed_dt_vec,wh_at_node),plt.show()
